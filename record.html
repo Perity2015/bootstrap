@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Record</title>
+    <title>记录展示</title>
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <script src="js/jquery.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
@@ -36,17 +36,10 @@
         var total = 0;
         var haveLoad = 0;
         var allRecords = new Array();
-        var html = "<ul class='ul_none'>";
 
         $(document).ready(function () {
             getRecords(total, haveLoad)
-
-            $('#table').on('click', 'li[id^=test]:even', function () {
-                mapClick(allRecords[parseInt(this.value)])
-            });
-
         });
-
 
         /**
          * 获取记录
@@ -57,7 +50,6 @@
             if (haveLoad >= total && total != 0) {
                 return;
             }
-//            alert("total="+total + "   haveLoad=" + haveLoad);
             $.ajax({
                 url: url,
                 data: {
@@ -80,11 +72,9 @@
                     for (var i = 0; i < array.length; i++) {
                         var object = array[i];
                         allRecords[haveLoad] = object;
-                        html += createHtml(object);
+                        insertItem(object);
                         haveLoad += 1;
                     }
-                    $("#table").html(html + "</ul>");
-
                 }
             });
         }
@@ -92,25 +82,24 @@
         /**
          * 生成表格
          * @param object
-         * @returns {string}
          */
-        function createHtml(object) {
-            var html1 = "<li><table class='table table-bordered'>";
-            html1 += "<tr><th class='td_1'>锁定物体</th><td class='td_2'>" + object.linkgoodname + "</td></tr>";
-            html1 += "<tr><th  class='td_1'>目的地址</th><td class='td_2'>" + object.deskaddr + " </td></tr>";
+        function insertItem(object) {
+            var html = "<li><table class='table table-bordered'>";
+            html += "<tr><th class='td_1'>锁定物体</th><td class='td_2'>" + object.linkgoodname + "</td></tr>";
+            html += "<tr><th  class='td_1'>目的地址</th><td class='td_2'>" + object.deskaddr + " </td></tr>";
             if (object.beginaddr != null) {
-                html1 += "<tr><th  class='td_1' >起始地址</th><td class='td_2'>" + object.beginaddr + " </td></tr>";
-                html1 += "<tr><th  class='td_1'>起始时间</th><td class='td_2'>" + formatDate(object.begintime) + " </td></tr>";
-                html1 += "<tr><th  class='td_1'>施封人员</th><td class='td_2'>" + object.beginusername + " </td></tr>";
+                html += "<tr><th  class='td_1' >起始地址</th><td class='td_2'>" + object.beginaddr + " </td></tr>";
+                html += "<tr><th  class='td_1'>起始时间</th><td class='td_2'>" + formatDate(object.begintime) + " </td></tr>";
+                html += "<tr><th  class='td_1'>施封人员</th><td class='td_2'>" + object.beginusername + " </td></tr>";
             }
             if (object.endaddr != null) {
-                html1 += "<tr><th  class='td_1'>结束地址</th><td class='td_2'>" + object.endaddr + " </td></tr>";
-                html1 += "<tr><th  class='td_1'>结束时间</th><td class='td_2'>" + formatDate(object.endtime) + " </td></tr>";
-                html1 += "<tr><th  class='td_1'>拆封人员</th><td class='td_2'>" + object.endusername + " </td></tr>";
+                html += "<tr><th  class='td_1'>结束地址</th><td class='td_2'>" + object.endaddr + " </td></tr>";
+                html += "<tr><th  class='td_1'>结束时间</th><td class='td_2'>" + formatDate(object.endtime) + " </td></tr>";
+                html += "<tr><th  class='td_1'>拆封人员</th><td class='td_2'>" + object.endusername + " </td></tr>";
             }
-            html1 += "</table></li>";
+            html += "</table></li>";
 
-            return html1;
+            $("#table").append(html);
         }
 
         /**
@@ -136,7 +125,11 @@
     </script>
 </head>
 <body>
-<div style="width: 100%" id="table"></div>
+<div>
+    <ul class='ul_none' id="table">
+
+    </ul>
+</div>
 <div id="bottom" style="text-align: center;padding-bottom: 20px;">
     <button class="btn btn-info" id="btn_more" onclick="getRecords()">加载更多</button>
     <img src="img/loading.gif" id="loading" class="loading">
