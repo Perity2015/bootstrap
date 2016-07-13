@@ -66,14 +66,17 @@
                     $("#loading").hide();
                     total = result.total;
                     var array = result.rows;
-                    if (haveLoad < total) {
-                        $("#btn_more").show();
-                    }
+
                     for (var i = 0; i < array.length; i++) {
                         var object = array[i];
                         allRecords[haveLoad] = object;
                         insertItem(object);
                         haveLoad += 1;
+                    }
+
+                    alert(haveLoad+"__" +total);
+                    if (haveLoad < total) {
+                        $("#btn_more").show();
                     }
                 }
             });
