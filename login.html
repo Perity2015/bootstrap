@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <style>
+        .loginImage {
+            width: 100%;
+            height: auto;
+        }
+
+        .form {
+            padding: 5%;
+            width: 100%;
+            height: auto;
+        }
+
+        .form-input {
+            margin-bottom: 10px;
+        }
+
+        .message {
+            color: red;
+            text-align: center;
+        }
+
+        .login_button {
+            width: 100%;
+            background-color: #46b8da;
+            padding: 4px;
+            border-radius: 4px;
+            color: white;
+        }
+    </style>
+
+    <script>
+        $(document).ready(function () {
+            $("#username").keydown(function (event) {
+                if (event.keyCode == 13) {
+                    $("#password").focus();
+                }
+            });
+            $("#password").keydown(function (event) {
+                if (event.keyCode == 13) {
+                    login();
+                }
+                ;
+            });
+        });
+    </script>
+</head>
+<body>
+<script>
+    function login() {
+        $("#message").html("");
+
+        var username = $.trim($('#username').val());
+        var password = $.trim($('#password').val());
+        var loginUrl = "/CoreSYS.SYS/LGKeyLogin.index.ajax";
+
+        if (username == "" || password == "") {
+            if (username == "") {
+                $("#username").focus();
+            } else if (password == "") {
+                $("#password").focus();
+            }
+            $("#message").html("请输入完整信息");
+            return;
+        }
+
+        $.ajax({
+            url: loginUrl,
+            data: {
+                username: username,
+                password: password
+            },
+            dataType: "json",
+            success: function (result) {
+                console.info(result);
+                if (result.bOK) {
+                    var LGKey = result.m_ReturnOBJ.m_UserInfo.LGKey;
+                    sessionStorage.LGKey = LGKey;
+                    location.href = "record.html";
+                } else {
+                    $("#message").html(result.sMsg);
+                }
+            }
+        });
+    }
+</script>
+<img src="img/image_login.png" class="loginImage">
+<form role="form" class="form">
+    <div class="form-input">
+        <input type="text" name="username" id="username" class="form-control" placeholder="请输入用户名">
+    </div>
+    <div class="form-input">
+        <input type="password" name="password" id="password" class="form-control" placeholder="请输入密码">
+    </div>
+    <input type="button" class="login_button" onclick="login()" value="登录"/>
+    <div>
+        <p id="message" class="message"></p>
+    </div>
+</form>
+</body>
+</html>

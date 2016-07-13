@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Record</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <style>
+        .td_1 {
+            width: 30%;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .td_2 {
+            width: 70%;
+        }
+
+        .ul_none {
+            padding-left: 10px;
+            padding-right: 10px;
+            padding-top: 10px;
+            list-style: none
+        }
+
+        .loading {
+            width: 20%;
+            height: 20%;
+        }
+    </style>
+    <script>
+        var url = "/OnceRfid.BaseOnceRfid/GetLinkGoodRecord_RawJson.ajax";
+        var total = 0;
+        var haveLoad = 0;
+        var allRecords = new Array();
+        var html = "<ul class='ul_none'>";
+
+        $(document).ready(function () {
+            getRecords(total, haveLoad)
+
+            $('#table').on('click', 'li[id^=test]:even', function () {
+                mapClick(allRecords[parseInt(this.value)])
+            });
+
+        });
+
+
+        /**
+         * 获取记录
+         * @param total
+         * @param haveLoad
+         */
+        function getRecords() {
+            if (haveLoad >= total && total != 0) {
+                return;
+            }
+//            alert("total="+total + "   haveLoad=" + haveLoad);
+            $.ajax({
+                url: url,
+                data: {
+                    page: haveLoad / 10 + 1,
+                    rows: "10"
+                },
+                dataType: "json",
+                beforeSend: function () {
+                    $("#btn_more").hide();
+                    $("#loading").show();
+                    $("html,body").animate({scrollTop: $("#bottom").offset().top}, 100);
+                },
+                success: function (result) {
+                    $("#loading").hide();
+                    total = result.total;
+                    var array = result.rows;
+                    if (haveLoad < total) {
+                        $("#btn_more").show();
+                    }
+                    for (var i = 0; i < array.length; i++) {
+                        var object = array[i];
+                        allRecords[haveLoad] = object;
+                        html += createHtml(object);
+                        haveLoad += 1;
+                    }
+                    $("#table").html(html + "</ul>");
+
+                }
+            });
+        }
+
+        /**
+         * 生成表格
+         * @param object
+         * @returns {string}
+         */
+        function createHtml(object) {
+            var html1 = "<li><table class='table table-bordered'>";
+            html1 += "<tr><th class='td_1'>锁定物体</th><td class='td_2'>" + object.linkgoodname + "</td></tr>";
+            html1 += "<tr><th  class='td_1'>目的地址</th><td class='td_2'>" + object.deskaddr + " </td></tr>";
+            if (object.beginaddr != null) {
+                html1 += "<tr><th  class='td_1' >起始地址</th><td class='td_2'>" + object.beginaddr + " </td></tr>";
+                html1 += "<tr><th  class='td_1'>起始时间</th><td class='td_2'>" + formatDate(object.begintime) + " </td></tr>";
+                html1 += "<tr><th  class='td_1'>施封人员</th><td class='td_2'>" + object.beginusername + " </td></tr>";
+            }
+            if (object.endaddr != null) {
+                html1 += "<tr><th  class='td_1'>结束地址</th><td class='td_2'>" + object.endaddr + " </td></tr>";
+                html1 += "<tr><th  class='td_1'>结束时间</th><td class='td_2'>" + formatDate(object.endtime) + " </td></tr>";
+                html1 += "<tr><th  class='td_1'>拆封人员</th><td class='td_2'>" + object.endusername + " </td></tr>";
+            }
+            html1 += "</table></li>";
+
+            return html1;
+        }
+
+        /**
+         * 格式化时间
+         * @param dateStr
+         * @returns {string}
+         */
+        function formatDate(dateStr) {
+            Date.prototype.toLocaleString = function () {
+                return this.getFullYear() + "-"
+                        + ((this.getMonth() + 1) >= 10 ? "" : "0" + (this.getMonth() + 1) ) + "-"
+                        + ( this.getDate() >= 10 ? "" : "0") + this.getDate() + "   "
+                        + (this.getHours() >= 10 ? "" : "0") + this.getHours() + ":"
+                        + (this.getMinutes() >= 10 ? "" : "0") + this.getMinutes() + ":"
+                        + (this.getSeconds() >= 10 ? "" : "0" ) + this.getSeconds();
+            };
+            dateStr.replace(/Date\([\d+]+\)/, function (a) {
+                eval('d = new ' + a)
+            });
+            return d.toLocaleString();
+        }
+
+    </script>
+</head>
+<body>
+<div style="width: 100%" id="table"></div>
+<div id="bottom" style="text-align: center;padding-bottom: 20px;">
+    <button class="btn btn-info" id="btn_more" onclick="getRecords()">加载更多</button>
+    <img src="img/loading.gif" id="loading" class="loading">
+</div>
+</body>
+</html>

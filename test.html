@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+    <script src="js/jquery.min.js"></script>
+    <style>
+        .test{
+            width: 20px;
+            height:20px;
+            background-color: #2aabd2;
+            margin: 2px;
+        }
+    </style>
+</head>
+<body>
+<input type="button" name="addbtn" value="按钮添加" />
+<div id="test"></div>
+<script>
+    $(function () {
+        var a = 1,
+                $_div = $('#test');
+        $('input[name=addbtn]').on('click', function () {
+            $_div.append('<input type="button" name="test' + a + '" value="按钮' + a + '"/>');
+            a++;
+        });
+
+//        //偶数项点击事件
+//        $_div.on('click', 'input[name^=test]:even', function () {
+//            alert('我是有效的on方法,你能看见我吗：' + this.value);
+//        });
+
+//        //奇数项绑定的点击事件  发现点击无效，而是用live方法却能够支持
+//        $('input[name^=test]:odd').on('click', function () {
+//            alert('我是无效的on方法,你不能看见我');
+//        });
+
+        //奇数项绑定的点击事件  发现点击无效，而是用live方法却能够支持
+        $('input[name^=test]:odd').live('click', function () {
+            alert('我是live方法,你能看见我吗：' + this.value);
+        });
+    });
+</script>
+</body>
+</html>
