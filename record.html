@@ -50,6 +50,7 @@
             if (haveLoad >= total && total != 0) {
                 return;
             }
+            var array = new Array();
             $.ajax({
                 url: url,
                 data: {
@@ -65,7 +66,7 @@
                 success: function (result) {
                     $("#loading").hide();
                     total = result.total;
-                    var array = result.rows;
+                    array = result.rows;
 
                     for (var i = 0; i < array.length; i++) {
                         var object = array[i];
@@ -86,22 +87,27 @@
          * @param object
          */
         function insertItem(object) {
-            var html = "<li><table class='table table-bordered'>";
+
+            var html = "<li id='li" + haveLoad + "' onclick='clickItem(this.id)'><table class='table table-bordered'>";
             html += "<tr><th class='td_1'>锁定物体</th><td class='td_2'>" + object.linkgoodname + "</td></tr>";
             html += "<tr><th  class='td_1'>目的地址</th><td class='td_2'>" + object.deskaddr + " </td></tr>";
             if (object.beginaddr != null) {
+                object.begintime = formatDate(object.begintime);
                 html += "<tr><th  class='td_1' >起始地址</th><td class='td_2'>" + object.beginaddr + " </td></tr>";
-                html += "<tr><th  class='td_1'>起始时间</th><td class='td_2'>" + formatDate(object.begintime) + " </td></tr>";
+                html += "<tr><th  class='td_1'>起始时间</th><td class='td_2'>" + object.begintime + " </td></tr>";
                 html += "<tr><th  class='td_1'>施封人员</th><td class='td_2'>" + object.beginusername + " </td></tr>";
             }
             if (object.endaddr != null) {
+                object.endtime = formatDate(object.endtime);
                 html += "<tr><th  class='td_1'>结束地址</th><td class='td_2'>" + object.endaddr + " </td></tr>";
-                html += "<tr><th  class='td_1'>结束时间</th><td class='td_2'>" + formatDate(object.endtime) + " </td></tr>";
+                html += "<tr><th  class='td_1'>结束时间</th><td class='td_2'>" + object.endtime + " </td></tr>";
                 html += "<tr><th  class='td_1'>拆封人员</th><td class='td_2'>" + object.endusername + " </td></tr>";
             }
             html += "</table></li>";
 
-            $("#table").append(html);
+            $("#list").append(html);
+
+            $("#li" + haveLoad).data("object", object);
         }
 
         /**
@@ -124,11 +130,21 @@
             return d.toLocaleString();
         }
 
+        /**
+         * 点击ITEM
+         * @param id
+         */
+        function clickItem(id) {
+            var str = JSON.stringify($("#" + id).data("object"));
+            console.info(escape(str));
+            location.href = "Amap.html?lang=zh_cn&str=" + escape(str);
+        }
+
     </script>
 </head>
 <body>
 <div>
-    <ul class='ul_none' id="table">
+    <ul class='ul_none' id="list">
 
     </ul>
 </div>

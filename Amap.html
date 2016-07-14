@@ -1,0 +1,96 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+    <title>地图展示</title>
+    <link rel="stylesheet" href="http://cache.amap.com/lbs/static/main.css?v=1.0"/>
+    <script src="http://cache.amap.com/lbs/static/es5.min.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="http://webapi.amap.com/maps?v=1.3&key=b45c6b5aba24a335a797b44c024f4c55"></script>
+</head>
+
+<body onload="init()">
+<div id="mapContainer"></div>
+<script>
+    function GetQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null)
+            return unescape(r[2]);
+        return null;
+    }
+
+    var map = new AMap.Map('mapContainer', {
+        center: [121.498586, 31.239637]
+    });
+
+    var lang = GetQueryString('lang');
+
+    map.setLang(lang);
+
+    function init() {
+        draw(GetQueryString("str"));
+    }
+
+    function draw(str) {
+//        console.info(decodeURIComponent(str));
+        var data = jQuery.parseJSON(str);
+        var lat = 0;
+        var lng = 0;
+        if (data.beginlng != null && data.beginlng != "") {
+            lat = parseFloat(data.beginlat);
+            lng = parseFloat(data.beginlng);
+            var marker1 = new AMap.Marker({
+                position: [data.beginlng, data.beginlat],
+                map: map
+            });
+            var info1 = "位置信息：";
+            info1 += "<br>施封人员：" + data.beginusername + "(" + data.beginuser + ")";
+            info1 += "<br>施封地址：" + data.beginaddr;
+            info1 += "<br>施封时间：" + data.begintime;
+            marker1.content = info1;
+            marker1.on('click', markerClick);
+            marker1.emit('click', {target: marker1});
+        }
+        if (data.endlat != null && data.endlat != "") {
+            if (lat == 0) {
+                lat = parseFloat(data.endlat);
+                lng = parseFloat(data.endlng);
+            } else {
+                lat = (lat + parseFloat(data.endlat)) / 2;
+                lng = (lng + parseFloat(data.endlng)) / 2;
+            }
+            var marker2 = new AMap.Marker({
+                position: [data.endlng, data.endlat],
+                map: map
+            });
+            var info2 = "位置信息：";
+            info2 += "<br>拆封人员：" + data.endusername + "(" + data.enduser + ")";
+            info2 += "<br>拆封地址：" + data.endaddr;
+            info2 += "<br>拆封时间：" + data.endtime;
+            marker2.content = info2;
+            marker2.on('click', markerClick);
+            marker2.emit('click', {target: marker2});
+        }
+        if (lat != 0) {
+            map.setCenter([lng, lat]);
+        }
+    }
+
+    var infoWindow = new AMap.InfoWindow({offset: new AMap.Pixel(0, -30)});
+
+    function markerClick(e) {
+        infoWindow.setContent(e.target.content);
+        infoWindow.open(map, e.target.getPosition());
+    }
+    map.setFitView();
+
+
+</script>
+</body>
+
+</html>
